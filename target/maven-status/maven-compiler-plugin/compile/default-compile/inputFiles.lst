@@ -35,5 +35,6 @@ D:\final_qr_gps\src\main\java\com\project\entity\Attendance.java
 D:\final_qr_gps\src\main\java\com\project\controller\SubjectController.java
 D:\final_qr_gps\src\main\java\com\project\controller\RegistrationController.java
 D:\final_qr_gps\src\main\java\com\project\controller\SectionController.java
+D:\final_qr_gps\src\main\java\com\project\controller\HomeController.java
 D:\final_qr_gps\src\main\java\com\project\QrAttendanceManagementSystemApplication.java
 D:\final_qr_gps\src\main\java\com\project\security\JwtFilter.java
