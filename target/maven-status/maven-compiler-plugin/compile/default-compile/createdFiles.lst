@@ -33,6 +33,7 @@ com\project\security\JwtUtil.class
 com\project\entity\Subject.class
 com\project\repository\UserRepository.class
 com\project\security\JwtFilter.class
+com\project\config\CorsConfig.class
 com\project\controller\StudentController.class
 com\project\security\SecurityConfig.class
 com\project\entity\Department$Builder.class

@@ -124,7 +124,7 @@ public class DataInitializer {
                 }
             }
 
-            // 5. Create Subjects for each Department
+            // 5. Create Subjects for each Department and assign to Sections
             Map<String, Subject> subjects = new HashMap<>();
             Map<String, String[]> deptSubjects = new HashMap<>();
             deptSubjects.put("CS", new String[]{"Data Structures", "DBMS", "Web Development", "AI/ML", "Cybersecurity"});
@@ -140,24 +140,36 @@ public class DataInitializer {
                         .filter(t -> t.getDepartment().getId().equals(dept.getId()))
                         .toList();
                 
+                // 🔥 CRITICAL FIX: Assign subjects to all sections of this department
+                List<Section> sectionsInDept = sectionRepository.findAll().stream()
+                        .filter(s -> s.getDepartment().getId().equals(dept.getId()))
+                        .toList();
+                
                 int subjectIdx = 0;
                 for (String subjectName : entry.getValue()) {
                     final String finalSubjectName = subjectName;
                     final Long finalDeptId = dept.getId();
                     
+                    // Check if this subject exists in ANY section of this department
                     boolean subjectExists = allSubjects.stream()
                             .anyMatch(s -> s.getName().equals(finalSubjectName) && 
-                                s.getDepartment().getId().equals(finalDeptId));
+                                s.getDepartment().getId().equals(finalDeptId) &&
+                                s.getSection() != null);
                     
                     if (!subjectExists) {
-                        Subject subject = new Subject();
-                        subject.setName(subjectName);
-                        subject.setDepartment(dept);
-                        if (!teachersInDept.isEmpty()) {
-                            subject.setTeacher(teachersInDept.get(subjectIdx % teachersInDept.size()));
+                        // Create one subject per section (round-robin through teachers)
+                        for (Section section : sectionsInDept) {
+                            Subject subject = new Subject();
+                            subject.setName(subjectName);
+                            subject.setDepartment(dept);
+                            subject.setYear(section.getYear());  // ✅ Assign year
+                            subject.setSection(section);  // ✅ CRITICAL: Assign to section!
+                            if (!teachersInDept.isEmpty()) {
+                                subject.setTeacher(teachersInDept.get(subjectIdx % teachersInDept.size()));
+                            }
+                            subjectRepository.save(subject);
+                            subjects.put(entry.getKey() + "_" + section.getId() + "_" + subjectName, subject);
                         }
-                        subjectRepository.save(subject);
-                        subjects.put(entry.getKey() + "_" + subjectName, subject);
                     }
                     subjectIdx++;
                 }

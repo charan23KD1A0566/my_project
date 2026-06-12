@@ -27,6 +27,7 @@ D:\final_qr_gps\src\main\java\com\project\repository\RegistrationRequestReposito
 D:\final_qr_gps\src\main\java\com\project\entity\Role.java
 D:\final_qr_gps\src\main\java\com\project\controller\TeacherController.java
 D:\final_qr_gps\src\main\java\com\project\repository\SectionRepository.java
+D:\final_qr_gps\src\main\java\com\project\config\CorsConfig.java
 D:\final_qr_gps\src\main\java\com\project\entity\RegistrationRequest.java
 D:\final_qr_gps\src\main\java\com\project\controller\YearController.java
 D:\final_qr_gps\src\main\java\com\project\entity\Section.java

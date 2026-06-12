@@ -26,69 +26,94 @@ public class StudentAttendanceController {
     @Autowired
     private AttendanceRepository attendanceRepository;
 
-    // ✅ FINAL METHOD
+    // ✅ FINAL METHOD with Enhanced Error Handling
     @PostMapping("/mark-attendance")
     public ResponseEntity<?> markAttendance(@RequestBody MarkAttendanceRequest req,
                                             Authentication authentication) {
 
-        // 🔐 Get logged-in student from JWT
-        String email = authentication.getName();
-        Student student = studentRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+        try {
+            // 🔐 Get logged-in student from JWT
+            String email = authentication.getName();
+            Student student = studentRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Student not found with email: " + email));
 
-        // 🔍 Get QR session
-        QRSession session = qrSessionRepository.findById(req.getSessionId())
-                .orElseThrow(() -> new RuntimeException("Session not found"));
+            // 🔍 Get QR session
+            QRSession session = qrSessionRepository.findById(req.getSessionId())
+                    .orElseThrow(() -> new RuntimeException("Session not found with ID: " + req.getSessionId()));
 
-        // ❌ Token check
-        if (!session.getToken().equals(req.getToken())) {
-            return ResponseEntity.badRequest().body("Invalid QR token");
+            // Validate subject and section exist
+            if (session.getSubject() == null) {
+                return ResponseEntity.badRequest().body("Subject not found in session");
+            }
+            if (session.getSubject().getSection() == null) {
+                return ResponseEntity.badRequest().body("Section not assigned to subject");
+            }
+            if (student.getSection() == null) {
+                return ResponseEntity.badRequest().body("Student not assigned to any section");
+            }
+
+            // ❌ Token check
+            if (!session.getToken().equals(req.getToken())) {
+                return ResponseEntity.badRequest().body("Invalid QR token");
+            }
+
+            // ❌ Expiry check
+            if (session.getExpiryTime().isBefore(LocalDateTime.now())) {
+                return ResponseEntity.badRequest().body("QR expired");
+            }
+
+            // ❌ Duplicate attendance check (optimized)
+            boolean alreadyMarked = attendanceRepository
+                    .existsByStudentIdAndSessionId(student.getId(), session.getId());
+
+            if (alreadyMarked) {
+                return ResponseEntity.badRequest().body("Attendance already marked");
+            }
+
+            // ❌ Section validation with detailed error message
+            Long studentSectionId = student.getSection().getId();
+            Long subjectSectionId = session.getSubject().getSection().getId();
+            
+            if (!studentSectionId.equals(subjectSectionId)) {
+                return ResponseEntity.badRequest()
+                    .body("Student not in this section. Student Section: " + studentSectionId + 
+                          ", Subject Section: " + subjectSectionId);
+            }
+
+            // 📍 Location validation
+            double distance = haversine(
+                    session.getTeacherLatitude(),
+                    session.getTeacherLongitude(),
+                    req.getStudentLatitude(),
+                    req.getStudentLongitude()
+            );
+
+            if (distance > session.getAllowedRadius()) {
+                return ResponseEntity.badRequest()
+                    .body("You are not in classroom range. Distance: " + distance + "m, Allowed: " + session.getAllowedRadius() + "m");
+            }
+
+            // ✅ Save attendance
+            Attendance attendance = Attendance.builder()
+                    .student(student)
+                    .subject(session.getSubject())
+                    .teacher(session.getTeacher())
+                    .date(LocalDate.now())
+                    .time(LocalTime.now())
+                    .status(AttendanceStatus.PRESENT)
+                    .session(session)
+                    .build();
+
+            attendanceRepository.save(attendance);
+
+            return ResponseEntity.ok("Attendance marked successfully ✅");
+
+        } catch (Exception e) {
+            // Log the full exception for debugging
+            e.printStackTrace();
+            return ResponseEntity.status(500)
+                    .body("Error: " + e.getMessage());
         }
-
-        // ❌ Expiry check
-        if (session.getExpiryTime().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body("QR expired");
-        }
-
-        // ❌ Duplicate attendance check (optimized)
-        boolean alreadyMarked = attendanceRepository
-                .existsByStudentIdAndSessionId(student.getId(), session.getId());
-
-        if (alreadyMarked) {
-            return ResponseEntity.badRequest().body("Attendance already marked");
-        }
-
-        // ❌ Section validation
-        if (!student.getSection().getId().equals(session.getSubject().getSection().getId())) {
-            return ResponseEntity.badRequest().body("Student not in this section");
-        }
-
-        // 📍 Location validation
-        double distance = haversine(
-                session.getTeacherLatitude(),
-                session.getTeacherLongitude(),
-                req.getStudentLatitude(),
-                req.getStudentLongitude()
-        );
-
-        if (distance > session.getAllowedRadius()) {
-            return ResponseEntity.badRequest().body("You are not in classroom range");
-        }
-
-        // ✅ Save attendance
-        Attendance attendance = Attendance.builder()
-                .student(student)
-                .subject(session.getSubject())
-                .teacher(session.getTeacher())
-                .date(LocalDate.now())
-                .time(LocalTime.now())
-                .status(AttendanceStatus.PRESENT)
-                .session(session)
-                .build();
-
-        attendanceRepository.save(attendance);
-
-        return ResponseEntity.ok("Attendance marked successfully ✅");
     }
 
     // 📍 Haversine formula (distance in meters)
