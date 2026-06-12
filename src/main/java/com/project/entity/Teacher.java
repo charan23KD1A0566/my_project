@@ -1,6 +1,7 @@
 package com.project.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 // Lombok removed; manual methods added
 import java.util.List;
 
@@ -21,9 +22,11 @@ public class Teacher {
     private Department department;
 
     @OneToMany(mappedBy = "teacher")
+    @JsonIgnore
     private List<Subject> subjects;
 
     @OneToMany(mappedBy = "teacher")
+    @JsonIgnore
     private List<QRSession> qrSessions;
 
     public Teacher() {}
