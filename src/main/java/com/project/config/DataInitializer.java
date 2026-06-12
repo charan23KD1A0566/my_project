@@ -140,7 +140,7 @@ public class DataInitializer {
                         .filter(t -> t.getDepartment().getId().equals(dept.getId()))
                         .toList();
                 
-                // 🔥 CRITICAL FIX: Assign subjects to all sections of this department
+                // Get all sections for this department
                 List<Section> sectionsInDept = sectionRepository.findAll().stream()
                         .filter(s -> s.getDepartment().getId().equals(dept.getId()))
                         .toList();
@@ -150,20 +150,37 @@ public class DataInitializer {
                     final String finalSubjectName = subjectName;
                     final Long finalDeptId = dept.getId();
                     
-                    // Check if this subject exists in ANY section of this department
-                    boolean subjectExists = allSubjects.stream()
-                            .anyMatch(s -> s.getName().equals(finalSubjectName) && 
-                                s.getDepartment().getId().equals(finalDeptId) &&
-                                s.getSection() != null);
+                    // First, find all existing subjects with this name in this department
+                    List<Subject> existingSubjects = allSubjects.stream()
+                            .filter(s -> s.getName().equals(finalSubjectName) && 
+                                    s.getDepartment().getId().equals(finalDeptId))
+                            .toList();
                     
-                    if (!subjectExists) {
-                        // Create one subject per section (round-robin through teachers)
-                        for (Section section : sectionsInDept) {
+                    // If there are orphaned subjects (with null section), delete them
+                    for (Subject orphaned : existingSubjects) {
+                        if (orphaned.getSection() == null) {
+                            subjectRepository.deleteById(orphaned.getId());
+                        }
+                    }
+                    
+                    // Now refresh the list
+                    existingSubjects = subjectRepository.findAll().stream()
+                            .filter(s -> s.getName().equals(finalSubjectName) && 
+                                    s.getDepartment().getId().equals(finalDeptId))
+                            .toList();
+                    
+                    // Create subjects for all sections that don't have this subject
+                    for (Section section : sectionsInDept) {
+                        final Long sectionId = section.getId();
+                        boolean subjectExistsForSection = existingSubjects.stream()
+                                .anyMatch(s -> s.getSection().getId().equals(sectionId));
+                        
+                        if (!subjectExistsForSection) {
                             Subject subject = new Subject();
                             subject.setName(subjectName);
                             subject.setDepartment(dept);
-                            subject.setYear(section.getYear());  // ✅ Assign year
-                            subject.setSection(section);  // ✅ CRITICAL: Assign to section!
+                            subject.setYear(section.getYear());
+                            subject.setSection(section);
                             if (!teachersInDept.isEmpty()) {
                                 subject.setTeacher(teachersInDept.get(subjectIdx % teachersInDept.size()));
                             }
