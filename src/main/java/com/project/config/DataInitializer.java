@@ -32,6 +32,12 @@ public class DataInitializer {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private QRSessionRepository qrSessionRepository;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+
     @Bean
     public CommandLineRunner initData(PasswordEncoder passwordEncoder) {
         return args -> {
