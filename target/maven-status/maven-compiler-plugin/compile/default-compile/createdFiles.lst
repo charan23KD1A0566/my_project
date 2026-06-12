@@ -32,6 +32,7 @@ com\project\entity\Student.class
 com\project\security\JwtUtil.class
 com\project\entity\Subject.class
 com\project\repository\UserRepository.class
+com\project\controller\StudentAttendanceController$1.class
 com\project\security\JwtFilter.class
 com\project\config\CorsConfig.class
 com\project\controller\StudentController.class

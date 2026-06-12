@@ -130,6 +130,33 @@ public class StudentAttendanceController {
         return R * c;
     }
 
+    // ✅ GET ATTENDANCE HISTORY
+    @GetMapping("/attendance-history")
+    public ResponseEntity<?> getAttendanceHistory(Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            Student student = studentRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Student not found with email: " + email));
+
+            var attendanceList = attendanceRepository.findByStudentId(student.getId());
+            
+            var response = attendanceList.stream().map(a -> new java.util.HashMap<String, Object>() {{
+                put("id", a.getId());
+                put("subjectName", a.getSubject().getName());
+                put("teacherName", a.getTeacher().getName());
+                put("date", a.getDate());
+                put("time", a.getTime());
+                put("status", a.getStatus());
+                put("markedTime", a.getTime());
+            }}).toList();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
     // 📦 CLEAN REQUEST DTO
     public static class MarkAttendanceRequest {
         private Long sessionId;
