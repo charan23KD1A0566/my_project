@@ -47,9 +47,9 @@
    - **Region:** Same as Supabase if possible
 
 4. Click **"Advanced"** → **"Add Environment Variable":**
-   - `DATABASE_URL` = `jdbc:postgresql://HOST:5432/postgres` (from Supabase Settings → Connection string)
+   - `DATABASE_URL` = `jdbc:postgresql://db.demipoarsgcfrnanujty.supabase.co:5432/postgres`
    - `DB_USERNAME` = `postgres`
-   - `DB_PASSWORD` = (your Supabase password)
+   - `DB_PASSWORD` = `Charan23KD1A0566`
 
 5. Click **"Create Web Service"** 🚀
 6. **Wait 10-15 minutes** for Docker build and deployment to complete
@@ -75,6 +75,18 @@ The included `Dockerfile` uses a **multi-stage build**:
 - Result: Only 200-300MB image (instead of 500MB+ with full Maven)
 
 No changes needed - Render automatically uses the Dockerfile!
+
+---
+
+## Quick Reference - Your Supabase Connection
+
+**Your credentials are ready to use:**
+```
+DATABASE_URL=jdbc:postgresql://db.demipoarsgcfrnanujty.supabase.co:5432/postgres
+DB_USERNAME=postgres
+DB_PASSWORD=Charan23KD1A0566
+```
+Just copy these into Render environment variables! ✅
 
 ---
 
