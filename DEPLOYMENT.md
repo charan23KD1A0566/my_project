@@ -1,9 +1,12 @@
-# Deployment Guide - Supabase + Render.com
+# Deployment Guide - Supabase + Render.com (Using Docker)
 
 ## Prerequisites
 - GitHub account (with repository pushed)
 - Supabase account (free at supabase.com)
 - Render account (free at render.com)
+- **Dockerfile included** ✅ (already in repository)
+
+**Why Docker?** Render's free tier doesn't support Java directly, but Docker allows us to containerize the Spring Boot app and deploy it on Render.
 
 ---
 
@@ -29,7 +32,7 @@
 
 ---
 
-## Step 2: Deploy Spring Boot App on Render
+## Step 2: Deploy Spring Boot App on Render (Using Docker)
 
 1. On Render Dashboard → Click **"New +"** → **"Web Service"**
 2. **Connect GitHub:**
@@ -37,9 +40,9 @@
    - Select your `my_project` repository
 3. **Fill in deployment info:**
    - **Name:** `qr-attendance-app`
-   - **Runtime:** `Java 17`
-   - **Build Command:** `./mvnw clean package`
-   - **Start Command:** `java -jar target/qr-attendance-management-system-0.0.1-SNAPSHOT.jar`
+   - **Runtime:** `Docker` ⭐ (Important: Use Docker, not Java)
+   - **Build Command:** Leave empty (Docker handles it)
+   - **Start Command:** Leave empty (Dockerfile handles it)
    - **Instance Type:** Free
    - **Region:** Same as Supabase if possible
 
@@ -49,7 +52,7 @@
    - `DB_PASSWORD` = (your Supabase password)
 
 5. Click **"Create Web Service"** 🚀
-6. **Wait 5-10 minutes** for deployment to complete
+6. **Wait 10-15 minutes** for Docker build and deployment to complete
 7. Your app will be live at: `https://qr-attendance-app.onrender.com`
 
 ---
@@ -64,7 +67,16 @@ GET https://qr-attendance-app.onrender.com/api/students
 
 ---
 
-## Supabase Connection String Formats
+## Dockerfile Explanation
+
+The included `Dockerfile` uses a **multi-stage build**:
+- **Stage 1:** Builds the JAR using Maven
+- **Stage 2:** Creates a lightweight Docker image with Java 17 runtime
+- Result: Only 200-300MB image (instead of 500MB+ with full Maven)
+
+No changes needed - Render automatically uses the Dockerfile!
+
+---
 
 **Full URI (Copy from Supabase Settings):**
 ```
