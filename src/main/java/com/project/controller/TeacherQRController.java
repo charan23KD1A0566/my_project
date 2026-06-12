@@ -42,53 +42,58 @@ public class TeacherQRController {
 
     // ================= QR GENERATION =================
     @PostMapping("/generateQR")
-    public ResponseEntity<?> generateQR(@RequestBody GenerateQRRequest req)
-            throws WriterException, IOException {
+    public ResponseEntity<?> generateQR(@RequestBody GenerateQRRequest req) {
+        try {
+            Optional<Teacher> teacherOpt = teacherRepository.findById(req.getTeacherId());
+            if (teacherOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Teacher not found with ID: " + req.getTeacherId());
+            }
+            if (!teacherOpt.get().getName().equals(req.getTeacherName())) {
+                return ResponseEntity.badRequest().body("Teacher name mismatch. Found: " + teacherOpt.get().getName() + ", Expected: " + req.getTeacherName());
+            }
 
-        Optional<Teacher> teacherOpt = teacherRepository.findById(req.getTeacherId());
-        if (teacherOpt.isEmpty() ||
-                !teacherOpt.get().getName().equals(req.getTeacherName())) {
-            return ResponseEntity.badRequest().body("Invalid teacher");
+            Optional<Subject> subjectOpt = subjectRepository.findById(req.getSubjectId());
+            if (subjectOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Subject not found with ID: " + req.getSubjectId());
+            }
+
+            String token = UUID.randomUUID().toString();
+            LocalDateTime now = LocalDateTime.now();
+
+            Long expiryMinutes = req.getQrExpiryTime();
+            if (expiryMinutes == null || expiryMinutes <= 0) {
+                expiryMinutes = 5L;
+            }
+
+            LocalDateTime expiry = now.plusMinutes(expiryMinutes);
+
+            QRSession session = QRSession.builder()
+                    .teacher(teacherOpt.get())
+                    .subject(subjectOpt.get())
+                    .token(token)
+                    .generatedTime(now)
+                    .expiryTime(expiry)
+                    .teacherLatitude(req.getTeacherLatitude())
+                    .teacherLongitude(req.getTeacherLongitude())
+                    .allowedRadius(50.0)
+                    .build();
+
+            qrSessionRepository.save(session);
+
+            String qrContent = "sessionId:" + session.getId() + ",token:" + token;
+            String qrBase64 = generateQRBase64(qrContent);
+
+            GenerateQRResponse resp = new GenerateQRResponse();
+            resp.setSessionId(session.getId());
+            resp.setToken(token);
+            resp.setExpiryTime(expiry);
+            resp.setQrImageBase64(qrBase64);
+
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("QR Generation Error: " + e.getMessage());
         }
-
-        Optional<Subject> subjectOpt = subjectRepository.findById(req.getSubjectId());
-        if (subjectOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Invalid subject");
-        }
-
-        String token = UUID.randomUUID().toString();
-        LocalDateTime now = LocalDateTime.now();
-
-        Long expiryMinutes = req.getQrExpiryTime();
-        if (expiryMinutes == null || expiryMinutes <= 0) {
-            expiryMinutes = 5L;
-        }
-
-        LocalDateTime expiry = now.plusMinutes(expiryMinutes);
-
-        QRSession session = QRSession.builder()
-                .teacher(teacherOpt.get())
-                .subject(subjectOpt.get())
-                .token(token)
-                .generatedTime(now)
-                .expiryTime(expiry)
-                .teacherLatitude(req.getTeacherLatitude())
-                .teacherLongitude(req.getTeacherLongitude())
-                .allowedRadius(50.0)
-                .build();
-
-        qrSessionRepository.save(session);
-
-        String qrContent = "sessionId:" + session.getId() + ",token:" + token;
-        String qrBase64 = generateQRBase64(qrContent);
-
-        GenerateQRResponse resp = new GenerateQRResponse();
-        resp.setSessionId(session.getId());
-        resp.setToken(token);
-        resp.setExpiryTime(expiry);
-        resp.setQrImageBase64(qrBase64);
-
-        return ResponseEntity.ok(resp);
     }
 
     // ================= ATTENDANCE API =================
