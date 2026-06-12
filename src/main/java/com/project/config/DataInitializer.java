@@ -125,6 +125,14 @@ public class DataInitializer {
             }
 
             // 5. Create Subjects for each Department and assign to Sections
+            // FIRST: Delete ALL subjects with null sections (corrupted data)
+            List<Subject> allExistingSubjects = subjectRepository.findAll();
+            for (Subject s : allExistingSubjects) {
+                if (s.getSection() == null) {
+                    subjectRepository.deleteById(s.getId());
+                }
+            }
+            
             Map<String, Subject> subjects = new HashMap<>();
             Map<String, String[]> deptSubjects = new HashMap<>();
             deptSubjects.put("CS", new String[]{"Data Structures", "DBMS", "Web Development", "AI/ML", "Cybersecurity"});
@@ -132,7 +140,7 @@ public class DataInitializer {
             deptSubjects.put("ME", new String[]{"Thermodynamics", "Mechanics", "Machine Design", "Fluid Mechanics", "Manufacturing"});
             deptSubjects.put("CE", new String[]{"Structural Analysis", "Concrete Technology", "Geotechnical Engineering", "Transportation", "Hydraulics"});
 
-            List<Subject> allSubjects = subjectRepository.findAll();
+            allExistingSubjects = subjectRepository.findAll();  // Refresh after deletion
             
             for (Map.Entry<String, String[]> entry : deptSubjects.entrySet()) {
                 Department dept = departments.get(entry.getKey());
@@ -150,21 +158,8 @@ public class DataInitializer {
                     final String finalSubjectName = subjectName;
                     final Long finalDeptId = dept.getId();
                     
-                    // First, find all existing subjects with this name in this department
-                    List<Subject> existingSubjects = allSubjects.stream()
-                            .filter(s -> s.getName().equals(finalSubjectName) && 
-                                    s.getDepartment().getId().equals(finalDeptId))
-                            .toList();
-                    
-                    // If there are orphaned subjects (with null section), delete them
-                    for (Subject orphaned : existingSubjects) {
-                        if (orphaned.getSection() == null) {
-                            subjectRepository.deleteById(orphaned.getId());
-                        }
-                    }
-                    
-                    // Now refresh the list
-                    existingSubjects = subjectRepository.findAll().stream()
+                    // Find existing subjects with this name in this department
+                    List<Subject> existingSubjects = allExistingSubjects.stream()
                             .filter(s -> s.getName().equals(finalSubjectName) && 
                                     s.getDepartment().getId().equals(finalDeptId))
                             .toList();
@@ -173,7 +168,7 @@ public class DataInitializer {
                     for (Section section : sectionsInDept) {
                         final Long sectionId = section.getId();
                         boolean subjectExistsForSection = existingSubjects.stream()
-                                .anyMatch(s -> s.getSection().getId().equals(sectionId));
+                                .anyMatch(s -> s.getSection() != null && s.getSection().getId().equals(sectionId));
                         
                         if (!subjectExistsForSection) {
                             Subject subject = new Subject();
