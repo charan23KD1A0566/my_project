@@ -22,7 +22,7 @@ public class Teacher {
     private Department department;
 
     @OneToMany(mappedBy = "teacher")
-    @JsonIgnore
+    @com.fasterxml.jackson.annotation.JsonManagedReference
     private List<Subject> subjects;
 
     @OneToMany(mappedBy = "teacher")

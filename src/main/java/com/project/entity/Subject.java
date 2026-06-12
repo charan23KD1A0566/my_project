@@ -17,6 +17,7 @@ public class Subject {
 
     @ManyToOne
     @JoinColumn(name = "teacher_id")
+    @com.fasterxml.jackson.annotation.JsonBackReference
     private Teacher teacher;
 
     @ManyToOne
