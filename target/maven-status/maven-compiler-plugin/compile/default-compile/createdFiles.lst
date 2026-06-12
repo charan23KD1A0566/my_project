@@ -4,6 +4,7 @@ com\project\entity\User$Builder.class
 com\project\repository\RegistrationRequestRepository.class
 com\project\entity\Student$Builder.class
 com\project\entity\RegistrationRequest.class
+com\project\controller\TeacherQRController$StudentAttendanceStatus.class
 com\project\util\GeoUtil.class
 com\project\controller\SubjectController.class
 com\project\entity\QRSession$Builder.class

@@ -1,39 +1,39 @@
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\Department.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\Attendance.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\repository\SectionRepository.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\TeacherQRController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\repository\QRSessionRepository.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\repository\StudentRepository.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\TeacherController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\repository\RegistrationRequestRepository.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\RegistrationRequest.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\Teacher.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\repository\AttendanceRepository.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\repository\UserRepository.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\QrAttendanceManagementSystemApplication.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\DepartmentController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\repository\DepartmentRepository.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\RegistrationApprovalController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\Section.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\Role.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\repository\SubjectRepository.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\User.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\config\DataInitializer.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\security\JwtUtil.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\security\JwtFilter.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\SectionController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\AuthController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\RegistrationController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\Student.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\StudentAttendanceViewController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\YearController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\SubjectController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\AttendanceStatus.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\security\SecurityConfig.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\QRSession.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\util\GeoUtil.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\service\CustomUserDetailsService.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\StudentController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\entity\Subject.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\controller\StudentAttendanceController.java
-D:\qr_and gps_based_attendance\backend\src\main\java\com\project\repository\TeacherRepository.java
+D:\final_qr_gps\src\main\java\com\project\entity\Student.java
+D:\final_qr_gps\src\main\java\com\project\entity\QRSession.java
+D:\final_qr_gps\src\main\java\com\project\repository\QRSessionRepository.java
+D:\final_qr_gps\src\main\java\com\project\entity\Subject.java
+D:\final_qr_gps\src\main\java\com\project\entity\User.java
+D:\final_qr_gps\src\main\java\com\project\controller\DepartmentController.java
+D:\final_qr_gps\src\main\java\com\project\repository\DepartmentRepository.java
+D:\final_qr_gps\src\main\java\com\project\config\DataInitializer.java
+D:\final_qr_gps\src\main\java\com\project\controller\TeacherQRController.java
+D:\final_qr_gps\src\main\java\com\project\repository\SubjectRepository.java
+D:\final_qr_gps\src\main\java\com\project\controller\StudentAttendanceViewController.java
+D:\final_qr_gps\src\main\java\com\project\controller\RegistrationApprovalController.java
+D:\final_qr_gps\src\main\java\com\project\entity\AttendanceStatus.java
+D:\final_qr_gps\src\main\java\com\project\repository\TeacherRepository.java
+D:\final_qr_gps\src\main\java\com\project\controller\AuthController.java
+D:\final_qr_gps\src\main\java\com\project\entity\Department.java
+D:\final_qr_gps\src\main\java\com\project\controller\StudentController.java
+D:\final_qr_gps\src\main\java\com\project\security\JwtUtil.java
+D:\final_qr_gps\src\main\java\com\project\entity\Teacher.java
+D:\final_qr_gps\src\main\java\com\project\service\CustomUserDetailsService.java
+D:\final_qr_gps\src\main\java\com\project\repository\AttendanceRepository.java
+D:\final_qr_gps\src\main\java\com\project\security\SecurityConfig.java
+D:\final_qr_gps\src\main\java\com\project\controller\StudentAttendanceController.java
+D:\final_qr_gps\src\main\java\com\project\repository\StudentRepository.java
+D:\final_qr_gps\src\main\java\com\project\repository\UserRepository.java
+D:\final_qr_gps\src\main\java\com\project\repository\RegistrationRequestRepository.java
+D:\final_qr_gps\src\main\java\com\project\entity\Role.java
+D:\final_qr_gps\src\main\java\com\project\controller\TeacherController.java
+D:\final_qr_gps\src\main\java\com\project\repository\SectionRepository.java
+D:\final_qr_gps\src\main\java\com\project\entity\RegistrationRequest.java
+D:\final_qr_gps\src\main\java\com\project\controller\YearController.java
+D:\final_qr_gps\src\main\java\com\project\entity\Section.java
+D:\final_qr_gps\src\main\java\com\project\util\GeoUtil.java
+D:\final_qr_gps\src\main\java\com\project\entity\Attendance.java
+D:\final_qr_gps\src\main\java\com\project\controller\SubjectController.java
+D:\final_qr_gps\src\main\java\com\project\controller\RegistrationController.java
+D:\final_qr_gps\src\main\java\com\project\controller\SectionController.java
+D:\final_qr_gps\src\main\java\com\project\QrAttendanceManagementSystemApplication.java
+D:\final_qr_gps\src\main\java\com\project\security\JwtFilter.java
