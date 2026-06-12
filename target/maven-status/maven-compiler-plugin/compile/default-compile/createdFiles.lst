@@ -20,6 +20,7 @@ com\project\repository\SectionRepository.class
 com\project\entity\Role.class
 com\project\repository\AttendanceRepository.class
 com\project\controller\DepartmentController.class
+com\project\controller\PublicStudentController.class
 com\project\entity\Teacher.class
 com\project\controller\TeacherQRController$GenerateQRRequest.class
 com\project\entity\Attendance.class
