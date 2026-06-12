@@ -38,6 +38,7 @@ com\project\entity\Department$Builder.class
 com\project\repository\SubjectRepository.class
 com\project\controller\StudentAttendanceController$MarkAttendanceRequest.class
 com\project\controller\YearController.class
+com\project\config\DataInitializer.class
 com\project\controller\SectionController.class
 com\project\controller\StudentAttendanceViewController$SubjectAttendance.class
 com\project\entity\Department.class
