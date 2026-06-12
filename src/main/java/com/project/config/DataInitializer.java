@@ -131,25 +131,10 @@ public class DataInitializer {
             }
 
             // 5. Create Subjects for each Department and assign to Sections
-            // FIRST: Delete cascading data for orphaned subjects (null sections)
-            List<Subject> allExistingSubjects = subjectRepository.findAll();
-            List<Subject> orphanedSubjects = new ArrayList<>();
-            for (Subject s : allExistingSubjects) {
-                if (s.getSection() == null) {
-                    orphanedSubjects.add(s);
-                }
-            }
+            // Note: Skipping cleanup of orphaned subjects to avoid startup delays
+            // New subjects will be created with proper section assignments
             
-            // Delete QR Sessions and Attendance records that reference these orphaned subjects
-            for (Subject orphan : orphanedSubjects) {
-                List<QRSession> sessionsToDelete = qrSessionRepository.findBySubjectId(orphan.getId());
-                for (QRSession session : sessionsToDelete) {
-                    attendanceRepository.deleteBySessionId(session.getId());
-                    qrSessionRepository.deleteById(session.getId());
-                }
-                // Now safe to delete the subject
-                subjectRepository.deleteById(orphan.getId());
-            }
+            List<Subject> allExistingSubjects = subjectRepository.findAll();
             
             Map<String, Subject> subjects = new HashMap<>();
             Map<String, String[]> deptSubjects = new HashMap<>();
@@ -158,8 +143,6 @@ public class DataInitializer {
             deptSubjects.put("ME", new String[]{"Thermodynamics", "Mechanics", "Machine Design", "Fluid Mechanics", "Manufacturing"});
             deptSubjects.put("CE", new String[]{"Structural Analysis", "Concrete Technology", "Geotechnical Engineering", "Transportation", "Hydraulics"});
 
-            allExistingSubjects = subjectRepository.findAll();  // Refresh after deletion
-            
             for (Map.Entry<String, String[]> entry : deptSubjects.entrySet()) {
                 Department dept = departments.get(entry.getKey());
                 List<Teacher> teachersInDept = teacherRepository.findAll().stream()
