@@ -125,12 +125,24 @@ public class DataInitializer {
             }
 
             // 5. Create Subjects for each Department and assign to Sections
-            // FIRST: Delete ALL subjects with null sections (corrupted data)
+            // FIRST: Delete cascading data for orphaned subjects (null sections)
             List<Subject> allExistingSubjects = subjectRepository.findAll();
+            List<Subject> orphanedSubjects = new ArrayList<>();
             for (Subject s : allExistingSubjects) {
                 if (s.getSection() == null) {
-                    subjectRepository.deleteById(s.getId());
+                    orphanedSubjects.add(s);
                 }
+            }
+            
+            // Delete QR Sessions and Attendance records that reference these orphaned subjects
+            for (Subject orphan : orphanedSubjects) {
+                List<QRSession> sessionsToDelete = qrSessionRepository.findBySubjectId(orphan.getId());
+                for (QRSession session : sessionsToDelete) {
+                    attendanceRepository.deleteBySessionId(session.getId());
+                    qrSessionRepository.deleteById(session.getId());
+                }
+                // Now safe to delete the subject
+                subjectRepository.deleteById(orphan.getId());
             }
             
             Map<String, Subject> subjects = new HashMap<>();
