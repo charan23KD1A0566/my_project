@@ -43,23 +43,23 @@ public class StudentAttendanceController {
 
             // Validate subject and section exist
             if (session.getSubject() == null) {
-                return ResponseEntity.badRequest().body("Subject not found in session");
+                return ResponseEntity.badRequest().body(java.util.Map.of("status", "ERROR", "message", "Subject not found in session"));
             }
             if (session.getSubject().getSection() == null) {
-                return ResponseEntity.badRequest().body("Section not assigned to subject");
+                return ResponseEntity.badRequest().body(java.util.Map.of("status", "ERROR", "message", "Section not assigned to subject"));
             }
             if (student.getSection() == null) {
-                return ResponseEntity.badRequest().body("Student not assigned to any section");
+                return ResponseEntity.badRequest().body(java.util.Map.of("status", "ERROR", "message", "Student not assigned to any section"));
             }
 
             // ❌ Token check
             if (!session.getToken().equals(req.getToken())) {
-                return ResponseEntity.badRequest().body("Invalid QR token");
+                return ResponseEntity.badRequest().body(java.util.Map.of("status", "ERROR", "message", "Invalid QR token"));
             }
 
             // ❌ Expiry check
             if (session.getExpiryTime().isBefore(LocalDateTime.now())) {
-                return ResponseEntity.badRequest().body("QR expired");
+                return ResponseEntity.badRequest().body(java.util.Map.of("status", "ERROR", "message", "QR expired"));
             }
 
             // ❌ Duplicate attendance check (optimized)
@@ -67,7 +67,7 @@ public class StudentAttendanceController {
                     .existsByStudentIdAndSessionId(student.getId(), session.getId());
 
             if (alreadyMarked) {
-                return ResponseEntity.badRequest().body("Attendance already marked");
+                return ResponseEntity.badRequest().body(java.util.Map.of("status", "ERROR", "message", "Attendance already marked"));
             }
 
             // ❌ Section validation with detailed error message
@@ -76,21 +76,20 @@ public class StudentAttendanceController {
             
             if (!studentSectionId.equals(subjectSectionId)) {
                 return ResponseEntity.badRequest()
-                    .body("Student not in this section. Student Section: " + studentSectionId + 
-                          ", Subject Section: " + subjectSectionId);
+                    .body(java.util.Map.of("status", "ERROR", "message", "Student not in this section. Student Section: " + studentSectionId + ", Subject Section: " + subjectSectionId));
             }
 
             // 📍 Location validation
             double distance = haversine(
                     session.getTeacherLatitude(),
                     session.getTeacherLongitude(),
-                    req.getStudentLatitude(),
-                    req.getStudentLongitude()
+                    req.getLatitude(),
+                    req.getLongitude()
             );
 
             if (distance > session.getAllowedRadius()) {
                 return ResponseEntity.badRequest()
-                    .body("You are not in classroom range. Distance: " + distance + "m, Allowed: " + session.getAllowedRadius() + "m");
+                    .body(java.util.Map.of("status", "ERROR", "message", "You are not in classroom range. Distance: " + distance + "m, Allowed: " + session.getAllowedRadius() + "m"));
             }
 
             // ✅ Save attendance
@@ -106,13 +105,13 @@ public class StudentAttendanceController {
 
             attendanceRepository.save(attendance);
 
-            return ResponseEntity.ok("Attendance marked successfully ✅");
+            return ResponseEntity.ok().body(java.util.Map.of("status", "PRESENT", "message", "Attendance marked successfully ✅"));
 
         } catch (Exception e) {
             // Log the full exception for debugging
             e.printStackTrace();
             return ResponseEntity.status(500)
-                    .body("Error: " + e.getMessage());
+                    .body(java.util.Map.of("status", "ERROR", "message", "Error: " + e.getMessage()));
         }
     }
 
@@ -161,8 +160,8 @@ public class StudentAttendanceController {
     public static class MarkAttendanceRequest {
         private Long sessionId;
         private String token;
-        private Double studentLatitude;
-        private Double studentLongitude;
+        private Double latitude;
+        private Double longitude;
 
         public Long getSessionId() { return sessionId; }
         public void setSessionId(Long sessionId) { this.sessionId = sessionId; }
@@ -170,10 +169,17 @@ public class StudentAttendanceController {
         public String getToken() { return token; }
         public void setToken(String token) { this.token = token; }
 
-        public Double getStudentLatitude() { return studentLatitude; }
-        public void setStudentLatitude(Double studentLatitude) { this.studentLatitude = studentLatitude; }
+        public Double getLatitude() { return latitude; }
+        public void setLatitude(Double latitude) { this.latitude = latitude; }
 
-        public Double getStudentLongitude() { return studentLongitude; }
-        public void setStudentLongitude(Double studentLongitude) { this.studentLongitude = studentLongitude; }
+        public Double getLongitude() { return longitude; }
+        public void setLongitude(Double longitude) { this.longitude = longitude; }
+        
+        // Compatibility aliases
+        public Double getStudentLatitude() { return latitude; }
+        public void setStudentLatitude(Double studentLatitude) { this.latitude = studentLatitude; }
+
+        public Double getStudentLongitude() { return longitude; }
+        public void setStudentLongitude(Double studentLongitude) { this.longitude = studentLongitude; }
     }
 }

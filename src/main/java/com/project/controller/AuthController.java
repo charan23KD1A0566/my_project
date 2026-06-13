@@ -77,6 +77,7 @@ public class AuthController {
 
                 response.put("token", token);
                 response.put("role", "TEACHER");
+                response.put("id", teacher.getId());
                 response.put("name", teacher.getName());
                 response.put("email", teacher.getEmail());
 
@@ -85,7 +86,15 @@ public class AuthController {
         }
 
         // ================= STUDENT LOGIN =================
-        Optional<Student> studentOpt = studentRepository.findByEmail(email);
+        Optional<Student> studentOpt = Optional.empty();
+        
+        if (request.getRollNumber() != null && !request.getRollNumber().isEmpty()) {
+            // Login by roll number
+            studentOpt = studentRepository.findByRollNumber(request.getRollNumber());
+        } else if (email != null && !email.isEmpty()) {
+            // Fallback to email if provided
+            studentOpt = studentRepository.findByEmail(email);
+        }
 
         if (studentOpt.isPresent()) {
             Student student = studentOpt.get();
@@ -133,6 +142,7 @@ public class AuthController {
     // ================= LOGIN REQUEST DTO =================
     public static class LoginRequest {
         private String email;
+        private String rollNumber;
         private String password;
 
         public LoginRequest() {}
@@ -143,6 +153,14 @@ public class AuthController {
 
         public void setEmail(String email) {
             this.email = email;
+        }
+
+        public String getRollNumber() {
+            return rollNumber;
+        }
+
+        public void setRollNumber(String rollNumber) {
+            this.rollNumber = rollNumber;
         }
 
         public String getPassword() {

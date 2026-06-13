@@ -13,6 +13,7 @@ com\project\entity\User.class
 com\project\controller\StudentAttendanceViewController$StudentAttendanceResponse.class
 com\project\entity\Subject$Builder.class
 com\project\repository\QRSessionRepository.class
+com\project\controller\AdminController.class
 com\project\controller\TeacherController.class
 com\project\controller\StudentAttendanceViewController.class
 com\project\entity\Section$Builder.class
@@ -50,6 +51,7 @@ com\project\repository\DepartmentRepository.class
 com\project\controller\TeacherQRController$GenerateQRResponse.class
 com\project\entity\Section.class
 com\project\entity\Attendance$Builder.class
+com\project\controller\GlobalExceptionHandler.class
 com\project\controller\AuthController$LoginRequest.class
 com\project\QrAttendanceManagementSystemApplication.class
 com\project\controller\AuthController.class

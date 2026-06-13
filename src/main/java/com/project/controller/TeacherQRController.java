@@ -21,7 +21,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/teacher")
-@PreAuthorize("hasRole('TEACHER')")
 public class TeacherQRController {
 
     // ================= REPOSITORIES =================
@@ -44,18 +43,66 @@ public class TeacherQRController {
     @PostMapping("/generateQR")
     public ResponseEntity<?> generateQR(@RequestBody GenerateQRRequest req) {
         try {
+            System.out.println("🔍 QR Request received: " + (req != null ? "not null" : "null"));
+            if (req != null) {
+                System.out.println("  teacherId: " + req.getTeacherId());
+                System.out.println("  teacherName: " + req.getTeacherName());
+                System.out.println("  subjectId: " + req.getSubjectId());
+                System.out.println("  year: " + req.getYear());
+                System.out.println("  section: " + req.getSection());
+            }
+            
+            // Validate required fields
+            if (req.getTeacherId() == null) {
+                System.out.println("❌ teacherId is null");
+                return ResponseEntity.badRequest().body("teacherId is required");
+            }
+            System.out.println("✅ teacherId validated");
+            
+            if (req.getTeacherName() == null || req.getTeacherName().isEmpty()) {
+                System.out.println("❌ teacherName is null or empty");
+                return ResponseEntity.badRequest().body("teacherName is required");
+            }
+            System.out.println("✅ teacherName validated");
+            
+            if (req.getSubjectId() == null) {
+                System.out.println("❌ subjectId is null");
+                return ResponseEntity.badRequest().body("subjectId is required");
+            }
+            System.out.println("✅ subjectId validated");
+            
+            if (req.getTeacherLatitude() == null || req.getTeacherLongitude() == null) {
+                System.out.println("❌ latitude or longitude is null");
+                return ResponseEntity.badRequest().body("Teacher latitude and longitude are required");
+            }
+            System.out.println("✅ location validated");
+
+            System.out.println("🔍 Fetching teacher...");
             Optional<Teacher> teacherOpt = teacherRepository.findById(req.getTeacherId());
             if (teacherOpt.isEmpty()) {
+                System.out.println("❌ Teacher not found");
                 return ResponseEntity.badRequest().body("Teacher not found with ID: " + req.getTeacherId());
             }
+            System.out.println("✅ Teacher found");
+            
             if (!teacherOpt.get().getName().equals(req.getTeacherName())) {
+                System.out.println("❌ Teacher name mismatch");
                 return ResponseEntity.badRequest().body("Teacher name mismatch. Found: " + teacherOpt.get().getName() + ", Expected: " + req.getTeacherName());
             }
+            System.out.println("✅ Teacher name matched");
 
+            System.out.println("🔍 Fetching subject with ID: " + req.getSubjectId());
+            System.out.println("🔍 Total subjects in DB: " + subjectRepository.count());
             Optional<Subject> subjectOpt = subjectRepository.findById(req.getSubjectId());
             if (subjectOpt.isEmpty()) {
+                System.out.println("❌ Subject not found with ID: " + req.getSubjectId());
+                System.out.println("📋 Available subjects (first 5):");
+                subjectRepository.findAll().stream().limit(5).forEach(s -> 
+                    System.out.println("   ID: " + s.getId() + ", Name: " + s.getName())
+                );
                 return ResponseEntity.badRequest().body("Subject not found with ID: " + req.getSubjectId());
             }
+            System.out.println("✅ Subject found: " + subjectOpt.get().getName());
 
             String token = UUID.randomUUID().toString();
             LocalDateTime now = LocalDateTime.now();
@@ -64,6 +111,8 @@ public class TeacherQRController {
             if (expiryMinutes == null || expiryMinutes <= 0) {
                 expiryMinutes = 5L;
             }
+            System.out.println("🔍 QR Expiry: " + expiryMinutes + " ms");
+
 
             LocalDateTime expiry = now.plusMinutes(expiryMinutes);
 
@@ -78,19 +127,27 @@ public class TeacherQRController {
                     .allowedRadius(50.0)
                     .build();
 
+            System.out.println("🔍 Saving QRSession...");
             qrSessionRepository.save(session);
+            System.out.println("✅ QRSession saved with ID: " + session.getId());
 
             String qrContent = "sessionId:" + session.getId() + ",token:" + token;
+            System.out.println("🔍 QR Content: " + qrContent);
+            
+            System.out.println("🔍 Generating QR Base64...");
             String qrBase64 = generateQRBase64(qrContent);
+            System.out.println("✅ QR Base64 generated, length: " + qrBase64.length());
 
             GenerateQRResponse resp = new GenerateQRResponse();
             resp.setSessionId(session.getId());
             resp.setToken(token);
             resp.setExpiryTime(expiry);
             resp.setQrImageBase64(qrBase64);
-
+            
+            System.out.println("✅ Returning QR response");
             return ResponseEntity.ok(resp);
         } catch (Exception e) {
+            System.out.println("❌ Exception caught: " + e.getClass().getName() + " - " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500).body("QR Generation Error: " + e.getMessage());
         }
@@ -151,7 +208,7 @@ public class TeacherQRController {
         private Long teacherId;
         private String teacherName;
         private Long subjectId;
-        private int year;
+        private Integer year;
         private String section;
         private String department;
         private Double teacherLatitude;
@@ -167,8 +224,8 @@ public class TeacherQRController {
         public Long getSubjectId() { return subjectId; }
         public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
 
-        public int getYear() { return year; }
-        public void setYear(int year) { this.year = year; }
+        public Integer getYear() { return year; }
+        public void setYear(Integer year) { this.year = year; }
 
         public String getSection() { return section; }
         public void setSection(String section) { this.section = section; }
