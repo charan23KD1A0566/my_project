@@ -6,12 +6,16 @@ import com.project.entity.Student;
 import com.project.repository.UserRepository;
 import com.project.repository.TeacherRepository;
 import com.project.repository.StudentRepository;
+import com.project.repository.SectionRepository;
+import com.project.repository.AttendanceRepository;
+import com.project.repository.QRSessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -27,7 +31,37 @@ public class AdminController {
     @Autowired
     private StudentRepository studentRepository;
 
-    /**
+    
+    @Autowired
+    private SectionRepository sectionRepository;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+
+    @Autowired
+    private QRSessionRepository qrSessionRepository;
+    @GetMapping("/dashboard")
+    public Map<String, Object> getDashboard() {
+        long adminCount = userRepository.count();
+        long teacherCount = teacherRepository.count();
+        long studentCount = studentRepository.count();
+        long totalUsers = adminCount + teacherCount + studentCount;
+        long todayPresent = attendanceRepository.findAll().stream()
+                .filter(a -> LocalDate.now().equals(a.getDate()))
+                .count();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalUsers", totalUsers);
+        result.put("totalClasses", sectionRepository.count());
+        result.put("todayAttendance", studentCount == 0 ? "0%" : String.format(Locale.US, "%.1f%%", (todayPresent * 100.0) / studentCount));
+        result.put("qrScans", qrSessionRepository.count());
+        result.put("totalTeachers", teacherCount);
+        result.put("totalStudents", studentCount);
+        result.put("totalAdmins", adminCount);
+        return result;
+    }
+
+/**
      * Get all users (combines admins, teachers, and students)
      */
     @GetMapping("/users")
@@ -88,3 +122,5 @@ public class AdminController {
         return result;
     }
 }
+
+

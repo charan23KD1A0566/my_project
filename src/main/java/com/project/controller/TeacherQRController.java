@@ -107,14 +107,19 @@ public class TeacherQRController {
             String token = UUID.randomUUID().toString();
             LocalDateTime now = LocalDateTime.now();
 
-            Long expiryMinutes = req.getQrExpiryTime();
-            if (expiryMinutes == null || expiryMinutes <= 0) {
-                expiryMinutes = 5L;
+            Long expiryDurationInSeconds = req.getExpiryDurationInSeconds();
+            LocalDateTime expiry;
+            if (expiryDurationInSeconds != null && expiryDurationInSeconds > 0) {
+                expiry = now.plusSeconds(expiryDurationInSeconds);
+                System.out.println("QR Expiry: " + expiryDurationInSeconds + " seconds");
+            } else {
+                Long expiryMinutes = req.getQrExpiryTime();
+                if (expiryMinutes == null || expiryMinutes <= 0) {
+                    expiryMinutes = 5L;
+                }
+                expiry = now.plusMinutes(expiryMinutes);
+                System.out.println("QR Expiry: " + expiryMinutes + " minutes");
             }
-            System.out.println("🔍 QR Expiry: " + expiryMinutes + " ms");
-
-
-            LocalDateTime expiry = now.plusMinutes(expiryMinutes);
 
             QRSession session = QRSession.builder()
                     .teacher(teacherOpt.get())
@@ -124,7 +129,7 @@ public class TeacherQRController {
                     .expiryTime(expiry)
                     .teacherLatitude(req.getTeacherLatitude())
                     .teacherLongitude(req.getTeacherLongitude())
-                    .allowedRadius(50.0)
+                    .allowedRadius(req.getAllowedRadius() != null ? req.getAllowedRadius() : 50.0)
                     .build();
 
             System.out.println("🔍 Saving QRSession...");
@@ -214,6 +219,8 @@ public class TeacherQRController {
         private Double teacherLatitude;
         private Double teacherLongitude;
         private Long qrExpiryTime;
+        private Long expiryDurationInSeconds;
+        private Double allowedRadius;
 
         public Long getTeacherId() { return teacherId; }
         public void setTeacherId(Long teacherId) { this.teacherId = teacherId; }
@@ -241,6 +248,11 @@ public class TeacherQRController {
 
         public Long getQrExpiryTime() { return qrExpiryTime; }
         public void setQrExpiryTime(Long qrExpiryTime) { this.qrExpiryTime = qrExpiryTime; }
+        public Long getExpiryDurationInSeconds() { return expiryDurationInSeconds; }
+        public void setExpiryDurationInSeconds(Long expiryDurationInSeconds) { this.expiryDurationInSeconds = expiryDurationInSeconds; }
+
+        public Double getAllowedRadius() { return allowedRadius; }
+        public void setAllowedRadius(Double allowedRadius) { this.allowedRadius = allowedRadius; }
     }
 
     // ================= DTO: RESPONSE =================
@@ -285,3 +297,7 @@ public class TeacherQRController {
         public void setStatus(String status) { this.status = status; }
     }
 }
+
+
+
+
